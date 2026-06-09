@@ -1,0 +1,69 @@
+{
+  "_description": "Canonical field registry for aviation loyalty Neo DAGs. Use this when prompting an AI to author new blocks — provide the relevant section as context.",
+  "version": "1.0.0",
+  "transactionFields": {
+    "topLevel": [
+      { "field": "identifierType", "type": "string", "required": true, "notes": "Loyalty ID type — typically 'externalId'" },
+      { "field": "identifierValue", "type": "string", "required": true, "notes": "The loyalty member number (FFN)" },
+      { "field": "source", "type": "string", "required": true, "notes": "Source of the transaction" },
+      { "field": "type", "type": "string", "required": true, "notes": "Transaction type — e.g. 'FLIGHT'" },
+      { "field": "billNumber", "type": "string", "required": true, "notes": "Unique transaction reference — must be globally unique" },
+      { "field": "billingDate", "type": "string", "required": true, "format": "ISO 8601 date-time", "notes": "Transaction date. Subject to MAX_BILLING_DAYS_LOOKBACK window check." },
+      { "field": "billAmount", "type": "number", "required": true, "notes": "Transaction amount" }
+    ],
+    "extendedFields": [
+      { "field": "pnr_number",        "type": "string",   "required": true,  "notes": "6-char PNR (booking reference)" },
+      { "field": "pnr_status",        "type": "string",   "required": true,  "notes": "booking status — must not be 'cancelled', 'hold', or 'utilized' at entry" },
+      { "field": "flight_number",     "type": "string",   "required": true,  "notes": "Airline flight number" },
+      { "field": "departure_date",    "type": "string",   "required": true,  "format": "ISO 8601 date-time", "notes": "Converted to IST date only before accrual" },
+      { "field": "arrival_date",      "type": "string",   "required": true,  "format": "ISO 8601 date-time", "notes": "Converted to IST date only" },
+      { "field": "booking_first_name","type": "string",   "required": true  },
+      { "field": "booking_last_name", "type": "string",   "required": true  },
+      { "field": "boarding_status",   "type": "string",   "required": true,  "notes": "'2' = boarded. Any other value = no-show path." },
+      { "field": "airline_code",      "type": "string",   "required": true  },
+      { "field": "store_associate_id","type": "string",   "required": false, "notes": "Check-in source store" }
+    ],
+    "customFields": [
+      { "field": "origin",            "type": "string",   "required": true,  "notes": "IATA origin airport code" },
+      { "field": "destination",       "type": "string",   "required": true,  "notes": "IATA destination airport code" },
+      { "field": "prod_class_code",   "type": "string",   "required": false, "notes": "Booking class — used for staff-travel filter (STAFF_CLASS_CODES)" },
+      { "field": "pax_type",          "type": "string",   "required": false, "notes": "Passenger type — used for staff filter (STAFF_PAX_TYPES)" },
+      { "field": "source_org_code",   "type": "string",   "required": false, "notes": "Booking org — used for duty-travel filter (STAFF_SOURCE_ORG_CODES)" },
+      { "field": "transaction_source","type": "string",   "required": false, "notes": "Used for codeshare filter (CODESHARE_SOURCES)" },
+      { "field": "burn_pnr_flag",     "type": "string",   "required": false, "notes": "Flags redemption PNRs — 'bt-burn' prefix = ineligible" },
+      { "field": "flight_status",     "type": "string",   "required": false, "notes": "Must be 'flown' or empty for PostFlown" },
+      { "field": "retro_or_auto",     "type": "string",   "required": false, "notes": "Indicates retro-claim vs auto-post" },
+      { "field": "eticket",           "type": "string",   "required": false },
+      { "field": "passengerid",       "type": "string",   "required": false },
+      { "field": "bookingid",         "type": "string",   "required": false },
+      { "field": "split_from_pnr",    "type": "string",   "required": false },
+      { "field": "tran_posting_date", "type": "string",   "required": false, "notes": "Stamped automatically in IST at accrual time; stripped from final response" },
+      { "field": "departure_time",    "type": "string",   "required": false, "notes": "Derived from departure_date (IST HH:MM:SS)" },
+      { "field": "arrival_time",      "type": "string",   "required": false, "notes": "Derived from arrival_date (IST HH:MM:SS)" }
+    ]
+  },
+  "mongoDocuments": {
+    "UtilisedPNR": {
+      "description": "One record per successfully accrued PNR leg",
+      "fields": [
+        "PNR", "PNR_KEY", "billNumber", "ticketNumber", "FFN",
+        "sourceStore", "origin", "destination", "distanceTravelled",
+        "departureDate", "arrivalDate", "departureTime", "arrivalTime",
+        "firstName", "lastName", "source", "deviceId",
+        "passengerid", "bookingid", "eticket", "splitFromPnr",
+        "creationDate", "modifiedDate", "isActive"
+      ]
+    },
+    "PNR_Transactions": {
+      "description": "Tracks flight_status per bill number; updated to FLOWN after accrual",
+      "fields": ["bill_number", "flight_status", "flight_status_updation_date", "is_active"]
+    },
+    "AliasRejectionCollection": {
+      "description": "Logs PNRs where the loyalty-alias check failed",
+      "fields": ["bill_number", "ffn_number", "rejection_reason", "alias_check", "request_payload", "date_created", "date_updated"]
+    }
+  },
+  "eventTypes": {
+    "BlockFraudCustomers": ["customerAdded", "pointsRedeemed", "transactionAdded"]
+  }
+}

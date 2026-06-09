@@ -1,0 +1,100 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "aviation-loyalty-plugin.schema.json",
+  "title": "Aviation Loyalty Plugin Config",
+  "type": "object",
+  "required": ["airline", "endpoints", "mongodb", "keyValueStore", "businessRules", "versioning"],
+  "additionalProperties": false,
+  "properties": {
+    "_comment": { "type": "string" },
+    "airline": {
+      "type": "object",
+      "required": ["AIRLINE_NAME", "LOYALTY_CURRENCY_NAME", "AIRLINE_IDENTIFIER_TYPE"],
+      "properties": {
+        "AIRLINE_NAME":            { "type": "string", "minLength": 1 },
+        "LOYALTY_CURRENCY_NAME":   { "type": "string", "minLength": 1 },
+        "AIRLINE_IDENTIFIER_TYPE": { "type": "string", "enum": ["externalid", "mobile", "email"] }
+      }
+    },
+    "endpoints": {
+      "type": "object",
+      "required": [
+        "DAG_URL_PRFLOWN", "DAG_URL_POSTFLOWN", "DAG_URL_CANCEL",
+        "DAG_URL_UPDATE_COUPON", "DAG_URL_UPDATE_POINTS", "DAG_URL_FRAUD",
+        "VALIDATE_ALIAS_URL", "TRANSACTION_BULK_ADD_URL", "TRANSACTION_RETURN_URL",
+        "COUPON_REDEEM_URL", "UPDATE_REDEMPTION_URL",
+        "CUSTOMER_LOOKUP_URL", "UPDATE_CUSTOMER_STATUS_URL", "EMAIL_API_URL"
+      ],
+      "properties": {
+        "DAG_URL_PRFLOWN":           { "type": "string", "minLength": 1 },
+        "DAG_URL_POSTFLOWN":         { "type": "string", "minLength": 1 },
+        "DAG_URL_CANCEL":            { "type": "string", "minLength": 1 },
+        "DAG_URL_UPDATE_COUPON":     { "type": "string", "minLength": 1 },
+        "DAG_URL_UPDATE_POINTS":     { "type": "string", "minLength": 1 },
+        "DAG_URL_FRAUD":             { "type": "string", "minLength": 1 },
+        "VALIDATE_ALIAS_URL":        { "type": "string", "format": "uri" },
+        "TRANSACTION_BULK_ADD_URL":  { "type": "string", "format": "uri" },
+        "TRANSACTION_RETURN_URL":    { "type": "string", "format": "uri" },
+        "COUPON_REDEEM_URL":         { "type": "string", "format": "uri" },
+        "UPDATE_REDEMPTION_URL":     { "type": "string", "format": "uri" },
+        "CUSTOMER_LOOKUP_URL":       { "type": "string", "minLength": 1 },
+        "UPDATE_CUSTOMER_STATUS_URL":{ "type": "string", "format": "uri" },
+        "EMAIL_API_URL":             { "type": "string", "format": "uri" }
+      }
+    },
+    "mongodb": {
+      "type": "object",
+      "required": [
+        "MONGO_PNR_TRANSACTIONS_COLLECTION", "MONGO_UTILISED_PNR_COLLECTION",
+        "MONGO_BOOKING_COLLECTION", "MONGO_ALIAS_REJECTION_COLLECTION",
+        "MONGO_COUPON_REDEMPTION_COLLECTION", "MONGO_POINTS_REDEMPTION_COLLECTION",
+        "MONGO_EMAIL_BLACKLIST_COLLECTION"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "MONGO_PNR_TRANSACTIONS_COLLECTION":  { "type": "string", "minLength": 1 },
+        "MONGO_UTILISED_PNR_COLLECTION":      { "type": "string", "minLength": 1 },
+        "MONGO_BOOKING_COLLECTION":           { "type": "string", "minLength": 1 },
+        "MONGO_ALIAS_REJECTION_COLLECTION":   { "type": "string", "minLength": 1 },
+        "MONGO_COUPON_REDEMPTION_COLLECTION": { "type": "string", "minLength": 1 },
+        "MONGO_POINTS_REDEMPTION_COLLECTION": { "type": "string", "minLength": 1 },
+        "MONGO_EMAIL_BLACKLIST_COLLECTION":   { "type": "string", "minLength": 1 }
+      }
+    },
+    "keyValueStore": {
+      "type": "object",
+      "required": [
+        "FRAUD_CUSTOMER_EMAIL_CONFIG_KEY", "FRAUD_TRANSACTION_EMAIL_CONFIG_KEY",
+        "PNR_NOTIFICATION_THRESHOLD_KEY", "FRAUD_CUSTOMER_STATUS_UPDATE_KEY"
+      ],
+      "properties": {
+        "FRAUD_CUSTOMER_EMAIL_CONFIG_KEY":    { "type": "string", "minLength": 1 },
+        "FRAUD_TRANSACTION_EMAIL_CONFIG_KEY": { "type": "string", "minLength": 1 },
+        "PNR_NOTIFICATION_THRESHOLD_KEY":     { "type": "string", "minLength": 1 },
+        "FRAUD_CUSTOMER_STATUS_UPDATE_KEY":   { "type": "string", "minLength": 1 }
+      }
+    },
+    "businessRules": {
+      "type": "object",
+      "required": [
+        "MAX_PAYLOAD_SIZE", "MAX_BILLING_DAYS_LOOKBACK",
+        "STAFF_CLASS_CODES", "STAFF_PAX_TYPES", "CODESHARE_SOURCES", "STAFF_SOURCE_ORG_CODES"
+      ],
+      "properties": {
+        "MAX_PAYLOAD_SIZE":          { "type": "integer", "minimum": 1, "maximum": 100 },
+        "MAX_BILLING_DAYS_LOOKBACK": { "type": "integer", "minimum": 1 },
+        "STAFF_CLASS_CODES":         { "type": "array", "items": { "type": "string" } },
+        "STAFF_PAX_TYPES":           { "type": "array", "items": { "type": "string" } },
+        "CODESHARE_SOURCES":         { "type": "array", "items": { "type": "string" } },
+        "STAFF_SOURCE_ORG_CODES":    { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "versioning": {
+      "type": "object",
+      "required": ["APP_VERSION"],
+      "properties": {
+        "APP_VERSION": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" }
+      }
+    }
+  }
+}
